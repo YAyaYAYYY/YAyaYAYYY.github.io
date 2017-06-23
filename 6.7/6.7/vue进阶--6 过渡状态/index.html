@@ -1,0 +1,115 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="author" content="范珍">
+    <title>vue进阶--6 过渡状态</title>
+    <!--
+        color.js：颜色的脚本库
+    -->
+    <script src="color.js"></script>
+    <!--
+        tween.js:js渐变引擎;
+    -->
+    <script src="tween.js"></script>
+    <script src='vue.js'></script>
+    <style>
+        span {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='app'>
+        <input type="text" placeholder="enter a color" v-model="queryColor" @keyup.enter="updateColor">
+        <button @click="updateColor">update</button>
+        <br>
+        <p>Preview:</p>
+        <span :style="{backgroundColor:tweenedCSSColor}"></span>
+        <p>{{tweenedCSSColor}}</p>
+    </div>
+    <script>
+        // 根据导入color.js脚本,获取Color类;
+        var Color = net.brehaut.Color;
+
+        new Vue({
+            el: '#app',
+            data: {
+                queryColor: '',
+                // 记录颜色渐变的终值
+                color: {
+                    red: 0,
+                    green: 0,
+                    blue: 0,
+                    alpha: 1
+                },
+                // 记录颜色渐变的初值
+                tweenedColor: {}
+            },
+            // vue实例创建完成时会调用
+            created: function () {
+                // Object.assign:把源对象中的属性复制一份放到目标对象中;
+                // 返回目标对象
+                // para1：目标对象
+                // para2....：源对象
+                this.tweenedColor = Object.assign({}, this.color);
+            },
+            computed:{
+                // 计算属性：把渐变的tweenedColor转化为css可以识别的类型
+                tweenedCSSColor:function(){
+                    var color = new Color(this.tweenedColor)
+                    .toCSS();
+                    console.log(color);
+                    return color;
+                }
+            },
+            watch: {
+                // 监视color属性,变化时执行回调函数
+                color: function () {
+                    function animate(){
+                        //根据浏览器的刷新频率递归调用animate 
+                        requestAnimationFrame(animate);
+                        // 
+                        TWEEN.update();
+                    }
+                    // 创建一个渐变对象
+                    //初值是this.tweenedColor
+                    //to 终值是this.color,时间是1000ms
+
+                    // onupdate：更新数据的回调函数
+                    // start:开始渐变
+                    new TWEEN.Tween(this.tweenedColor)
+                    .to(this.color,1000)
+                    .onUpdate(function(){
+                        console.log(this.tweenedColor.red);
+                    }.bind(this))
+                    .start();
+
+                    // 调用animate方法，根据浏览器帧频更新数据
+                    animate();
+                }
+            },
+            methods: {
+                updateColor: function () {
+                    console.log('更新颜色');
+                    // 根据输入的颜色字符串创建一个Color类型的对象
+                    var color = new Color(this.queryColor);
+                    console.log(color);
+                    // 转化为rgb颜色模式(还有hsl,hsv);
+                    this.color = color.toRGB();
+
+                    //清空输入框
+                    this.queryColor = '';
+                }
+            }
+        })
+
+
+        
+    </script>
+</body>
+
+</html>

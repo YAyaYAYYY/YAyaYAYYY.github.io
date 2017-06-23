@@ -1,0 +1,88 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="author" content="范珍">
+    <title>vue进阶--4 过渡效果</title>
+    <script src="velocity.min.js"></script>
+    <script src='vue.js'></script>
+</head>
+
+<body>
+    <div id='app'>
+        <input type="text" v-model="query">
+        <!--
+            列表渐进过渡
+            采用data-index记录元素的索引,
+            动画的时候根据索引添加不同时长的延迟,
+            从而形成渐进动画;
+        -->
+        <transition-group tag="ul" :css="false" @before-enter="beforeEnter" @enter="enter" @leave="leave">
+            <li v-for="(l,index) in computedList" :key="l.mes" :data-index="index">
+                {{l.mes}}
+            </li>
+        </transition-group>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                list: [
+                    { mes: 'hello world' },
+                    { mes: 'say hai' },
+                    { mes: 'hello lucy' },
+                    { mes: 'hai,jack' },
+                    { mes: 'say hello' },
+                ],
+                query: ''
+            },
+            computed: {
+                // 计算属性：返回满足输入条件的对象构成的数组;
+                // 当输入条件query发生变化时会重新计算;
+                computedList: function () {
+                    // 注意this指向
+                    var vm = this;
+                    return this.list.filter(function (item) {
+                        console.log(this);
+                        return item.mes.toLowerCase()
+                            .indexOf(vm.query.toLowerCase()) !== -1;
+                    })
+                }
+            },
+            methods: {
+                beforeEnter: function (el) {
+                    el.style.opacity = 0;
+                    el.style.height = 0;
+                },
+                enter: function (el, done) {
+                    var delay = el.dataset.index * 300;
+                    setTimeout(function () {
+                        Velocity(
+                            el,
+                            { opacity: 1, height: '1.6em' },
+                            { complete: done, duration: 300 }
+                        );
+                    }, delay)
+                    // Velocity:一个js动画的脚本库
+                    // para1：标签元素
+                    // para2：css对象
+                    // para3：配置选项
+
+                },
+                leave: function (el, done) {
+                    var delay = el.dataset.index * 300;
+                    setTimeout(function () {
+                        Velocity(
+                            el,
+                            { opacity: 0, height: 0 },
+                            { complete: done, duration: 300 }
+                        );
+                    }, delay)
+                }
+            }
+
+        })
+    </script>
+</body>
+
+</html>

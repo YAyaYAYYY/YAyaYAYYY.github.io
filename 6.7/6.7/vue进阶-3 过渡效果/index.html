@@ -1,0 +1,125 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="author" content="范珍">
+        <title>vue进阶--3 过渡效果</title>
+        <script src='vue.js'></script>
+        <style>
+            .fade-enter{
+                opacity: 0;
+            }
+            .fade-enter-active{
+                transition: all 2s ;
+            }
+
+            .slide-enter{
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            .slide-enter-active{
+                transition: all 2s ;
+            }
+            .slide-leave-active{
+                transform: translateX(-100px);
+                opacity: 0;
+                transition: all 2s ;
+            }
+
+            span{
+                display: inline-block;
+                margin-right: 10px;
+            }
+
+            .list-enter{
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            .list-enter-active{
+                transition: all 1s;
+            }
+            .list-leave-active{
+                opacity: 0;
+                transform: translateY(30px);
+                transition: all 1s;
+                /*
+                需要添加绝对定位,否则位移过渡失效
+                绝对定位不占据文档空间，把位置空出来,后面的元素
+                才能位移过渡;
+                */
+                position: absolute;
+            }
+
+            /*
+                v-move:可以用来设置列表过渡中的位移过渡;
+                v前缀是通过name属性指定的;
+            */
+            .list-move{
+                transition: all 1s ;
+            }
+        </style>
+    </head>
+    <body>
+        <div id='app'>
+            <!--
+               1、 appear：添加appear字段,可以给视图添加初始渲染动画
+            -->
+            <transition appear name="fade">
+                <p>这是一个p标签</p>
+            </transition>
+
+            <!--
+               2、 多个元素的过渡
+                多个元素过渡时，默认是离开和进入同时发生；
+                也可以通过设置mode(过渡模式)修改
+                in-out:先进行进入的过渡，在进行离开的过渡;
+                out-in：与in-out相反；
+            -->
+            <transition name="slide" mode="out-in">
+                <p v-if="isShow" key="save">isShow取值为真</p>
+                <p v-else key="edit">isShow取值为假</p>
+            </transition>
+            <button @click="isShow = !isShow">切换isShow</button>
+            <br>
+            <br>
+            <br>
+            
+
+            <!--
+               3、 列表过渡
+            -->
+            <button @click="add">添加数字</button>
+            <button @click="remove">删除数字</button>
+            <!--
+                tag:指明列表渲染的span所在的容器标签
+            -->
+            <transition-group name="list" tag="p">
+                <span v-for="num in numbers" :key="num">{{num}}</span>
+            </transition-group>
+        
+        </div>
+        <script>
+         new Vue({
+            el:'#app',
+            data:{
+                isShow:true,
+                numbers:[1,2,3,4,5,6,7,8,9],
+                nextNum:10
+            },
+            methods:{
+                // 随机一个索引
+                randomIndex:function(){
+                    return  Math.floor((Math.random()*this.numbers.length));
+                },
+                //随机索引位置添加一个数字
+                add:function(){
+                    this.numbers.splice(this.randomIndex(),0,this.nextNum++);
+                },
+                // 随机索引位置删除一个数字
+                remove:function(){
+                    this.numbers.splice(this.randomIndex(),1);
+                }
+            }
+        })
+        </script>
+    </body>
+</html>

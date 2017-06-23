@@ -1,0 +1,61 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="author" content="范珍">
+        <title>vue进阶--5 过渡效果</title>
+        <script src='vue.js'></script>
+        <style>
+            .fade-enter{
+                opacity: 0;
+            }
+            .fade-enter-active{
+                transition: all 1s;
+            }
+            .fade-leave-active{
+                opacity: 0;
+                transition: all 1s;
+            }
+
+            .slide-enter{
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            .slide-enter-active{
+                transition: all 1s ;
+            }
+            .slide-leave-active{
+                transform: translateY(100px);
+                opacity: 0;
+                transition: all 1s;
+            }
+        </style>
+    </head>
+    <body>
+        <div id='app'>
+            <button @click="isShow=!isShow">修改显隐</button>
+            <button @click="changeName">修改transitionName</button>
+            <!--
+                动态过渡：可以通过动态绑定修改name的值,
+                也就是class样式类的前缀；
+                不同的前缀写不同的过渡效果就可以实现动态过渡;
+            -->
+            <transition :name="transitionName">
+                <p v-show="isShow">这是一个p标签</p>
+            </transition>
+        </div>
+        <script>
+         new Vue({
+            el:'#app',
+            data:{
+                isShow:true,
+                transitionName:'fade'
+            },
+            methods:{
+                changeName:function(){
+                    this.transitionName = this.transitionName=='fade'? 'slide':'fade';
+                }
+            }
+        })
+        </script>
+    </body>
+</html>
